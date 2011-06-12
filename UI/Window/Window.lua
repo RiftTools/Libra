@@ -14,7 +14,7 @@ local context = UI.CreateContext("Context")
 Libra.UI.Window = Window
 
 function Libra.UI.Window:Create(params)
-	local window = Libra.UI.FrameManager:Create('Libra.UI.Window: Frame', context)
+	local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
 	
     -----------------------
     -- Build the Window
