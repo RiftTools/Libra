@@ -45,7 +45,9 @@ function Libra.UI.Button:Create(owner)
 		self.text:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -self.hpadding, -self.vpadding)	
 	end
 	
+	--
 	-- Set the button text
+	--
 	function button:SetText(newtext)
 		self.text:SetText(newtext)
 		self:Refresh()

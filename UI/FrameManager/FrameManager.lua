@@ -58,7 +58,22 @@ function Libra.UI.FrameManager:Create(frame_type, parent)
 	table.insert(self:GetFramesByType(frame_type), frame)
 	
 	return frame
-end;
+end
+
+--
+-- Returns a frame/object to the pool
+--
+-- @param    UI.Frame   frame_type   The frame to be recycled
+function Libra.UI.FrameManager:Recycle(frame)
+	if frame.type then
+		for k, v in pairs(self:GetFramesByType(frame.type)) do
+			if v == frame then
+				local tmp_frame = table.remove(self:GetFramesByType(frame.type), k)
+				table.insert(self:GetFreeByType(frame.type), tmp_frame)
+			end
+		end
+	end
+end
 
 --
 -- Returns the list of free frames of this frame type
@@ -66,11 +81,13 @@ end;
 -- @param    string   frame_type   The frame type requested
 -- @returns  table                 Table of free frames
 function Libra.UI.FrameManager:GetFreeByType(frame_type)
-	result = false
+	local result = false
 	for k, v in pairs(self.free_frames) do
-		if v.type == frame_type then
-			result = v
-			break
+		if v.type then
+			if v.type == frame_type then
+				result = v
+				break
+			end
 		end
 	end
 	
@@ -89,11 +106,13 @@ end
 -- @param    string   frame_type   The frame type requested
 -- @returns  table                 Table of in-use frames
 function Libra.UI.FrameManager:GetFramesByType(frame_type)
-	result = false
+	local result = false
 	for k, v in pairs(self.frames) do
-		if v.type == frame_type then
-			result = v
-			break
+		if v.type then
+			if v.type == frame_type then
+				result = v
+				break
+			end
 		end
 	end
 	

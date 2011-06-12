@@ -87,6 +87,8 @@ function Libra.UI.Toggle:Create(owner)
 			self.text.off.bg:SetBackgroundColor(0.8,0,0,0.8)
 		end
 		
+		self.state = newstate
+		
 		self:Refresh()
 	end
 	

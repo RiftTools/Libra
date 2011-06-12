@@ -39,27 +39,10 @@ function Libra.UI.Window:Create(params)
     
     window.title.background = Libra.UI.FrameManager:Create('Texture', window)
     window.title.background:SetLayer(-1)
-
-    -- Shows or hides the title bar
-    --
-    -- @param   bool   show   True/False title flag
-    function window:ShowTitle(show)
-    	if show then
-    		self.title.isVisible = true
-    		self.title:SetVisible(true)
-    		self.controlbox.close:SetVisible(true)
-    		self.content:SetPoint("TOPLEFT", window.title, "BOTTOMLEFT") 		
-    	else
-    		self.title.isVisible = false
-    		self.title:SetVisible(false)
-    		self.controlbox.close:SetVisible(false)
-    		self.content:SetPoint('TOPLEFT', self.border.topleft, 'BOTTOMRIGHT')   		
-    	end    	
-    end
     
     -- Build the control box
     window.controlbox = {}
-    window.controlbox.close = UI.CreateFrame("Texture", "Libra.UI.Window: Control Box [Close]", window);
+    window.controlbox.close = Libra.UI.FrameManager:Create('Texture', window);
     window.controlbox.close:SetPoint('TOPLEFT', window.title, 'TOPRIGHT')
     window.controlbox.close:SetTexture('Libra', 'close.tga')
     window.controlbox.close:SetWidth(window.title:GetFullHeight())
@@ -104,7 +87,7 @@ function Libra.UI.Window:Create(params)
     window.title.background:SetPoint('TOPRIGHT', window.border.topright, 'BOTTOMLEFT')
     
     -- Build the content area
-    window.content = UI.CreateFrame("Texture", "Libra.UI.Window: Content Frame", window);
+    window.content = Libra.UI.FrameManager:Create('Texture', window)
     window.content.padding = 10
     --window.content:SetTexture('Libra', 'Media/bg.jpg')
     window.content:SetPoint("TOPLEFT", window.title, "BOTTOMLEFT")
@@ -134,9 +117,27 @@ function Libra.UI.Window:Create(params)
     	end
     end
     
+    
+    -- Shows or hides the title bar
+    --
+    -- @param   bool   show   True/False title flag
+    function window:ShowTitle(show)
+    	if show then
+    		self.title.isVisible = true
+    		self.title:SetVisible(true)
+    		self.controlbox.close:SetVisible(true)
+    		self.content:SetPoint("TOPLEFT", window.title, "BOTTOMLEFT") 		
+    	else
+    		self.title.isVisible = false
+    		self.title:SetVisible(false)
+    		self.controlbox.close:SetVisible(false)
+    		self.content:SetPoint('TOPLEFT', self.border.topleft, 'BOTTOMRIGHT')   		
+    	end    	
+    end
+    
     -- Sets the Window title bar text
     --
-    -- @param   String   title   Text to be set as the window title
+    -- @param   String   newtitle   Text to be set as the window title
     function window:SetTitle(newtitle)
     	self.title:SetText(' ' .. newtitle)
     	self.title:SetHeight(window.title:GetFullHeight())
@@ -144,7 +145,7 @@ function Libra.UI.Window:Create(params)
     
     -- Applys content to the window
     --
-    --
+    -- @param   UI.Frame   newcontent   Frame to be used as window content
     function window:SetContent(newcontent)
     	newcontent:SetParent(self.content)
     	newcontent:SetPoint('TOPLEFT', self.content, 'TOPLEFT', self.content.padding, self.content.padding)
@@ -193,15 +194,17 @@ function Libra.UI.Window:Create(params)
     -- Show/Hide/Destroy Methods
     --------------------------------------
     function window:Show()
-    	window:SetVisible(true)
+    	self:SetVisible(true)
     end
     
     function window:Hide()
-    	window:SetVisible(false)
+    	self:SetVisible(false)
     end
     
     function window:Destroy()
-    	window:SetVisible(false) -- TODO: enable frame recycling
+    	self:SetVisible(false)
+    	self.content = Libra.UI.FrameManager:Create('Texture', window) --Memory leak kinda, whatever frames were inside window.content are orphaned, but this sanitizes the windows content area for reuse
+    	Libra.UI.FrameManager:Recycle(self)
     end
         
     --------------------------------------
