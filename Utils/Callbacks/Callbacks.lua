@@ -20,8 +20,8 @@ Libra.Utils.Callbacks.callbacks = {}
 --   Addon from needing to wait for the callback to complete.
 --
 -- @param   func    callback   Function to call back
-function Libra.Utils.Callbacks:Execute(callback)
-	table.insert(Libra.Utils.Callbacks.callbacks, callback)
+function Libra.Utils.Callbacks:Execute(callback, params)
+	table.insert(Libra.Utils.Callbacks.callbacks, { callback = callback, params = params })
 end
 
 --
@@ -30,8 +30,8 @@ end
 --
 function Libra.Utils.Callbacks:_CallbackService()
 	for k, v in pairs(Libra.Utils.Callbacks.callbacks) do
-		v()
 		table.remove(Libra.Utils.Callbacks.callbacks, k)
+		v.callback(v.params)		
 	end
 end
 

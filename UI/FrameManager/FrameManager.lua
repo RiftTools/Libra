@@ -65,6 +65,7 @@ end
 --
 -- @param    UI.Frame   frame_type   The frame to be recycled
 function Libra.UI.FrameManager:Recycle(frame)
+	frame:SetVisible(false)
 	if frame.type then
 		for k, v in pairs(self:GetFramesByType(frame.type)) do
 			if v == frame then

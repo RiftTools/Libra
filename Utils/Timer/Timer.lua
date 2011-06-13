@@ -3,7 +3,7 @@
 local Libra = LibStub:GetLibrary('Libra-alpha', true)
 if not Libra then return end
 
-local MAJOR = "Libra-alpha.UI.Timer"
+local MAJOR = "Libra-alpha.Utils.Timer"
 local MINOR = 1
 
 local Timer = LibStub:NewLibrary(MAJOR, MINOR)
@@ -13,7 +13,7 @@ Libra.Utils.Timer = Timer
 
 Libra.Utils.Timer.timers = {}
 
-Libra.Utils.Timer.next_timepoint = false
+Libra.Utils.Timer.next_timepoint = 0
 
 --
 -- Create a new countdown Timer
@@ -21,15 +21,19 @@ Libra.Utils.Timer.next_timepoint = false
 -- @param   int   duration   Timer duration in seconds
 -- @param   func  callback   Function to callback
 -- @returns timer new_timer  Newly created timer object
-function Libra.Utils.Timer:Create(name, duration, callback)
+function Libra.Utils.Timer:Create(name, duration, callback, params)
 	local new_timer = {}
 	new_timer.duration = duration
 	new_timer.callback = callback
+	new_timer.params   = params
 	new_timer.end_time = Inspect.System.Time() + duration
 	new_timer.remaining = duration
 
-	table.insert(Libra.Utils.Timer.timers, new_timer)
+	Libra.Utils.Timer.timers[name] = new_timer
 	Libra.Utils.Timer:calculate_timepoint()
+	
+	print('New Timer: ' .. tostring(name))
+	
 	return new_timer
 end
 
@@ -55,10 +59,15 @@ end
 --
 function Libra.Utils.Timer:calculate_timepoint()
 	if self.timers then
+		local i = 0
 		for k, v in pairs(self.timers) do
 			if v.end_time > self.next_timepoint then
-				self.next_timepoint
+				self.next_timepoint = v.end_time
 			end
+			i = i + 1
+		end
+		if i == 0 then
+			self.next_timepoint = 0
 		end
 	end
 end
@@ -67,7 +76,8 @@ end
 -- Monitors existing timers and fires off callback when needed
 --
 function Libra.Utils.Timer:_MonitorService()
-	if Libra.Utils.Timer.next_timepoint and Inspect.System.Time() >= Libra.Utils.Timer.next_timepoint then
+	
+	if Libra.Utils.Timer.next_timepoint > 0 then
 		if Libra.Utils.Timer.timers then
 			for k, v in pairs(Libra.Utils.Timer.timers) do
 				v.remaining = v.end_time - Inspect.System.Time()
@@ -75,10 +85,17 @@ function Libra.Utils.Timer:_MonitorService()
 					v.remaining = 0
 				end
 				if v.end_time <= Inspect.System.Time() then
-					if v.callback then
-						v.callback()
+				
+					print('Timer Up!: ' .. tostring(k) .. '  --  ' .. tostring(v.callback))
+					
+					if v.callback and v.params then
+						print('Sending timer callback: ' .. tostring(k))
+						Libra.Utils.Callbacks:Execute(v.callback, v.params)
+					elseif v.callback then
+						print('Sending timer callback: ' .. tostring(k))
+						Libra.Utils.Callbacks:Execute(v.callback)
 					end
-					table.remove(Libra.Utils.Timer.timers, k)
+					Libra.Utils.Timer.timers[k] = nil
 					Libra.Utils.Timer:calculate_timepoint()
 				end
 			end
