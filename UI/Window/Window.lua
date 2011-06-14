@@ -44,7 +44,7 @@ function Libra.UI.Window:Create(params)
     window.controlbox = {}
     window.controlbox.close = Libra.UI.FrameManager:Create('Texture', window);
     window.controlbox.close:SetPoint('TOPLEFT', window.title, 'TOPRIGHT')
-    window.controlbox.close:SetTexture('Libra', 'close.tga')
+    window.controlbox.close:SetTexture('Libra', 'Media/close.tga')
     window.controlbox.close:SetWidth(window.title:GetFullHeight())
     window.controlbox.close:SetHeight(window.title:GetFullHeight())
     

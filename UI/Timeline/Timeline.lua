@@ -24,6 +24,8 @@ function Libra.UI.Timeline:Create(context)
 	
 	new_timeline.Entries = {}
 	
+	new_timeline.multi_timeline = false
+	
 	new_timeline.border = {}
 	new_timeline.border.size = 4
 	
@@ -36,15 +38,19 @@ function Libra.UI.Timeline:Create(context)
 	--
 	-- Add an entry to the timeline
 	--	
-	function new_timeline:AddEntry(identifier, payload, value)
+	function new_timeline:AddEntry(identifier, payload, value, min, max)
 		local new_entry = Libra.UI.FrameManager:Create('Libra.UI.Timeline: Entry', self.background)
+		if min ~= nil and max ~= nil then
+			new_entry.min = min
+			new_entry.max = max
+		end
 		new_entry.value = value
 		new_entry.payload = payload
 		new_entry.payload:SetParent(new_entry)
 		
 		new_entry:SetPoint('TOPLEFT', self.background, 'TOPLEFT')
 		new_entry:SetPoint('BOTTOMLEFT', self.background, 'BOTTOMLEFT')
-		new_entry.payload:SetPoint('TOPCENTER', new_entry, 'TOPRIGHT')
+		new_entry.payload:SetPoint('TOPRIGHT', new_entry, 'TOPRIGHT')
 		
 		function new_entry:SetValue(val)
 			self.value = val
@@ -63,7 +69,6 @@ function Libra.UI.Timeline:Create(context)
 	-- Remove and entry from the timeline
 	--
 	function new_timeline:RemoveEntry(id)
-		print('Timeline: removing entry: ' .. tostring(id))
 		if self.Entries[id] then
 			self.Entries[id]:SetVisible(false)
 			self.Entries[id] = nil
@@ -78,11 +83,21 @@ function Libra.UI.Timeline:Create(context)
 		self.background:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -self.border.size, -self.border.size)
 		
 		for k, v in pairs(self.Entries) do
+			local offset = 0
 			if v.value then
-				local offset = self.background:GetWidth() - (self.background:GetWidth() * (v.value / self.max))
+				if v.min ~= nil and v.max ~= nil and self.multi_timeline then
+					offset = (self.background:GetWidth() - v.payload:GetWidth()) - ((self.background:GetWidth() - v.payload:GetWidth()) * (v.value / v.max))
+				else
+					offset = (self.background:GetWidth() - v.payload:GetWidth()) - ((self.background:GetWidth() - v.payload:GetWidth()) * (v.value / self.max))
+				end				
 				v:SetPoint('TOPRIGHT', self.background, 'TOPRIGHT', -offset, 0)
-				self:SetVisible(true)
+				v:SetVisible(true)
+				
+				if v.value > self.max and not self.multi_timeline then
+					v:SetVisible(false)
+				end
 			end
+			
 		end
 	end
 	

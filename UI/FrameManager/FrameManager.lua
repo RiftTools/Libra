@@ -42,17 +42,24 @@ function Libra.UI.FrameManager:Create(frame_type, parent)
 	if old_frame then
 		frame = old_frame
 		frame:SetParent(parent)
+		Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'TOTAL_RECYCLED_FRAMES_PRODUCED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'TOTAL_RECYCLED_FRAMES_PRODUCED') or 0) + 1)
+		Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'RECYCLED_FRAMES_PRODUCED_', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'RECYCLED_FRAMES_PRODUCED_' .. frame_type) or 0) + 1)
 	else
 		if frame_type == 'Frame' then
 			frame = UI.CreateFrame('Frame', "Libra.FrameManager Frame", parent)
+			Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'FRAMES_PRODUCED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'FRAMES_PRODUCED') or 0) + 1)
 		elseif frame_type == 'Text' then
 			frame = UI.CreateFrame('Text', "Libra.FrameManager Text", parent)
+			Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'TEXT_PRODUCED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'TEXT_PRODUCED') or 0) + 1)
 		elseif frame_type == 'Texture' then
 			frame = UI.CreateFrame('Texture', "Libra.FrameManager Texture", parent)
+			Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'TEXTURE_PRODUCED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'TEXTURE_PRODUCED') or 0) + 1)
 		else
 			frame = UI.CreateFrame('Frame', "Libra.FrameManager Frame", parent)
+			Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'FRAMES_PRODUCED_' .. frame_type, tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'FRAMES_PRODUCED_' .. frame_type) or 0) + 1)
 		end
 		frame.type = frame_type
+		Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'TOTAL_FRAMES_PRODUCED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'TOTAL_FRAMES_PRODUCED') or 0) + 1)
 	end
 	
 	table.insert(self:GetFramesByType(frame_type), frame)
@@ -67,11 +74,17 @@ end
 function Libra.UI.FrameManager:Recycle(frame)
 	frame:SetVisible(false)
 	if frame.type then
+		local found_a_match = false
 		for k, v in pairs(self:GetFramesByType(frame.type)) do
 			if v == frame then
 				local tmp_frame = table.remove(self:GetFramesByType(frame.type), k)
 				table.insert(self:GetFreeByType(frame.type), tmp_frame)
+				Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'TOTAL_FRAMES_RECYCLED', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'TOTAL_FRAMES_RECYCLED') or 0) + 1)
+				Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'FRAMES_RECYCLED_' .. frame.type, tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'FRAMES_RECYCLED_' .. frame.type) or 0) + 1)
 			end
+		end
+		if not found_a_match then
+			Libra.Utils.Registry:Set('STAT_FRAME_MANAGER', 'FRAMES_LOST', tonumber(Libra.Utils.Registry:Get('STAT_FRAME_MANAGER', 'FRAMES_LOST') or 0) + 1)
 		end
 	end
 end

@@ -82,7 +82,6 @@ function Libra.UI.SmartGrid:Create(context)
 	function grid:RemoveCell(id)
 		for k, v in pairs(self.Cells) do
 			if v.id == id then
-				print('REMOVED A CELL YO')
 				v.frame:SetVisible(false)
 				Libra.UI.FrameManager:Recycle(v.payload)
 				Libra.UI.FrameManager:Recycle(v.frame)

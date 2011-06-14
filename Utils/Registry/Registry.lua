@@ -13,14 +13,14 @@ Libra.Utils.Registry = Registry
 
 Libra.Utils.Registry.Entries = {}
 
-function Libra.Utils.Registry.Entries:Set(major, minor, value)
+function Libra.Utils.Registry:Set(major, minor, value)
 	if not Libra.Utils.Registry.Entries[major] then
 		Libra.Utils.Registry.Entries[major] = {}
 	end
 	Libra.Utils.Registry.Entries[major][minor] = value
 end
 
-function Libra.Utils.Registry.Entries:Get(major, minor)
+function Libra.Utils.Registry:Get(major, minor)
 	if Libra.Utils.Registry.Entries[major] and Libra.Utils.Registry.Entries[major][minor] then
 		return Libra.Utils.Registry.Entries[major][minor]
 	else

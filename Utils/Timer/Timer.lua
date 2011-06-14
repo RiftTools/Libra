@@ -20,7 +20,7 @@ Libra.Utils.Timer.next_timepoint = 0
 --
 -- @param   int   duration   Timer duration in seconds
 -- @param   func  callback   Function to callback
--- @returns timer new_timer  Newly created timer object
+-- @returns timer            Newly created timer object
 function Libra.Utils.Timer:Create(name, duration, callback, params)
 	local new_timer = {}
 	new_timer.duration = duration
@@ -31,8 +31,6 @@ function Libra.Utils.Timer:Create(name, duration, callback, params)
 
 	Libra.Utils.Timer.timers[name] = new_timer
 	Libra.Utils.Timer:calculate_timepoint()
-	
-	print('New Timer: ' .. tostring(name))
 	
 	return new_timer
 end
@@ -84,15 +82,10 @@ function Libra.Utils.Timer:_MonitorService()
 				if v.remaining < 0 then
 					v.remaining = 0
 				end
-				if v.end_time <= Inspect.System.Time() then
-				
-					print('Timer Up!: ' .. tostring(k) .. '  --  ' .. tostring(v.callback))
-					
+				if v.end_time <= Inspect.System.Time() then					
 					if v.callback and v.params then
-						print('Sending timer callback: ' .. tostring(k))
 						Libra.Utils.Callbacks:Execute(v.callback, v.params)
 					elseif v.callback then
-						print('Sending timer callback: ' .. tostring(k))
 						Libra.Utils.Callbacks:Execute(v.callback)
 					end
 					Libra.Utils.Timer.timers[k] = nil
