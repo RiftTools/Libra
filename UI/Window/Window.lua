@@ -169,7 +169,10 @@ function Libra.UI.Window:Create(params)
 
     -- Sets the Window's border size
     --
-    -- @param   String   color   Border color hex [0xFF000000] = Black Full Alpha
+    -- @param   String   r   Red as % of one. Example: 0.5 would = 128 in CSS
+    -- @param   String   g   Green as % of one. Example: 0.5 would = 128 in CSS
+    -- @param   String   b   Blue as % of one. Example: 0.5 would = 128 in CSS
+    -- @param   String   a   Alpha as % of one. Example: 0.5
     function window:SetBorderColor(r, g, b, a)
     	self.border.topleft:SetBackgroundColor(r, g, b, a)
     	self.border.topcenter:SetBackgroundColor(r, g, b, a)

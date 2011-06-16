@@ -25,6 +25,8 @@ function Libra.UI.NumberBox:Create(owner)
 	box:SetWidth(139)
 	box:SetHeight(40)
 	
+	box.min = -9999	
+	box.max = 9999
 	
 	box.text_background = Libra.UI.FrameManager:Create('Texture', box.background)
 	box.text_background:SetBackgroundColor(0.2,0.2,0.2,0.9)	
@@ -97,10 +99,10 @@ function Libra.UI.NumberBox:Create(owner)
 	box.bt_10down.text:SetText('-10')
 	box.bt_100down.text:SetText('-100')
 	
-	box.bt_1up.text:SetFontSize(11)
+	box.bt_1up.text:SetFontSize(10)
 	box.bt_10up.text:SetFontSize(10)
 	box.bt_100up.text:SetFontSize(9)
-	box.bt_1down.text:SetFontSize(11)
+	box.bt_1down.text:SetFontSize(10)
 	box.bt_10down.text:SetFontSize(10)
 	box.bt_100down.text:SetFontSize(9)
 	
@@ -140,6 +142,8 @@ function Libra.UI.NumberBox:Create(owner)
 	
 	-- Other Init stuff
 	box.value = false
+	
+	box.OnChange = {}
 
 	-- Refresh the box
 	function box:Refresh()
@@ -148,15 +152,20 @@ function Libra.UI.NumberBox:Create(owner)
 	
 	-- Set the box value
 	function box:SetValue(newvalue)
-		if newvalue > 9999 then
-			newvalue = 9999
-		elseif newvalue < -9999 then
-			newvalue = -9999
+		if newvalue > self.max then
+			newvalue = self.max
+		elseif newvalue < self.min then
+			newvalue = self.min
 		end
 	
 		self.value = newvalue
 		self.text:SetText(tostring(newvalue))
 		self.text:ResizeToText()
+		
+		for k, v in pairs(self.OnChange) do
+			v()
+		end		
+		
 		self:Refresh()
 	end
 	

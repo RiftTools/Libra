@@ -20,6 +20,7 @@ RunOnStartup = {
   'UI/NumberBox/NumberBox.lua',
   'UI/ProgressBar/ProgressBar.lua',
   'UI/SmartGrid/SmartGrid.lua',
+  'UI/ColorPicker/ColorPicker.lua',
   'UI/Timeline/Timeline.lua',
   'UI/Toggle/Toggle.lua',
   'UI/Window/Window.lua',    

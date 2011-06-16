@@ -29,8 +29,6 @@ function Libra.UI.SmartGrid:Create(context)
 	
 	grid.background = Libra.UI.FrameManager:Create('Frame', grid)
 	grid.background:SetBackgroundColor(0.2,0.2,0.2,0.9)
-	grid.background:SetPoint('TOPLEFT', grid, 'TOPLEFT', grid.border.size, grid.border.size)
-	grid.background:SetPoint('BOTTOMRIGHT', grid, 'BOTTOMRIGHT', -grid.border.size, -grid.border.size)
 	
 	grid.max = 30
 	grid.min = 0
@@ -58,10 +56,12 @@ function Libra.UI.SmartGrid:Create(context)
 		}
 		
 		new_cell.frame:SetParent(self.background)
-		new_cell.payload:SetParent(new_cell.frame)
+	
+		--new_cell.payload:SetParent(new_cell.frame)
 		new_cell.payload:SetAllPoints(new_cell.frame)
 				
-		table.insert(grid.Cells , new_cell)
+		grid.Cells[id] = new_cell
+		
 		self.cell_count = self.cell_count + 1
 		
 		--new_cell.frame:SetVisible(false)
@@ -80,16 +80,19 @@ function Libra.UI.SmartGrid:Create(context)
 	end
 	
 	function grid:RemoveCell(id)
-		for k, v in pairs(self.Cells) do
-			if v.id == id then
+		if self.Cells[id] then
+			if v.frame then
 				v.frame:SetVisible(false)
-				Libra.UI.FrameManager:Recycle(v.payload)
 				Libra.UI.FrameManager:Recycle(v.frame)
-				v.payload = nil
 				v.frame = nil
-				self.cell_count = self.cell_count - 1
-				table.remove(self.Cells, k)
 			end
+			if v.payload then
+				Libra.UI.FrameManager:Recycle(v.payload)
+				v.payload = nil
+			end		
+			
+			self.cell_count = self.cell_count - 1
+			self.Cells[id] = nil
 		end
 	end
 	
@@ -113,6 +116,9 @@ function Libra.UI.SmartGrid:Create(context)
 	
 	function grid:Refresh()
 		local cols, rows = 0, 0
+		
+		self.background:SetPoint('TOPLEFT', self, 'TOPLEFT', self.border.size, self.border.size)
+		self.background:SetPoint('BOTTOMRIGHT', self, 'BOTTOMRIGHT', -self.border.size, -self.border.size)
 	
 		-- Calc rows & cols				
 		if not self.rows and not self.cols then
@@ -123,6 +129,8 @@ function Libra.UI.SmartGrid:Create(context)
 		if self.cols then
 			if self.cell_count < self.cols then
 				cols = self.cell_count
+			else
+				cols = self.cols
 			end
 			rows = math.ceil(self.cell_count / cols)
 		end
@@ -130,6 +138,8 @@ function Libra.UI.SmartGrid:Create(context)
 		if self.rows then
 			if self.cell_count < self.rows then
 				rows = self.cell_count
+			else
+				rows = self.rows
 			end
 			cols = math.ceil(self.cell_count / rows)
 		end
@@ -178,21 +188,21 @@ function Libra.UI.SmartGrid:Create(context)
 			
 		end
 		
-		--print('==================================')
-		--print('==================================')
-		--print('==================================')
-		--print(' TOTAL CELLS: ' .. self.cell_count)
-		--print(' FRAME WIDTH: ' .. width)
-		--print('FRAME HEIGHT: ' .. height)
-		--print(' CELL HEIGHT: ' .. self.cell_height)
-		--print('  CELL WIDTH: ' .. self.cell_width)
-		--print('        ROWS: ' .. tostring(self.rows))
-		--print('        COLS: ' .. tostring(self.cols))
-		--print('   REAL ROWS: ' .. rows)
-		--print('   REAL COLS: ' .. cols)
-		--print('==================================')
-		--print('==================================')
-		--print('==================================')
+		--[[print('==================================')
+		print('==================================')
+		print('==================================')
+		print(' TOTAL CELLS: ' .. self.cell_count)
+		print(' FRAME WIDTH: ' .. width)
+		print('FRAME HEIGHT: ' .. height)
+		print(' CELL HEIGHT: ' .. self.cell_height)
+		print('  CELL WIDTH: ' .. self.cell_width)
+		print('        ROWS: ' .. tostring(self.rows))
+		print('        COLS: ' .. tostring(self.cols))
+		print('   REAL ROWS: ' .. rows)
+		print('   REAL COLS: ' .. cols)
+		print('==================================')
+		print('==================================')
+		print('==================================')]]
 		
 	end
 	
