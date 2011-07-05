@@ -31,7 +31,11 @@ function Libra.UI.Window:Create(params)
         
 	-- Build the title bar
 	window.title = Libra.UI.FrameManager:Create('Text', window)
-    window.title:SetText(".") 
+	if params["titletext"] ~= nil then
+		window.title:SetText(' ' .. params["titletext"]) 
+	else 
+		window.title:SetText(' ') 
+	end
     window.title:SetFontSize(14)
     window.title:SetHeight(window.title:GetFullHeight())
     window.title:SetBackgroundColor(0.2, 0.2, 0.2, 0.9)
@@ -65,8 +69,8 @@ function Libra.UI.Window:Create(params)
     window.border.bottomcenter = Libra.UI.FrameManager:Create('Texture', window)
     window.border.bottomright  = Libra.UI.FrameManager:Create('Texture', window)
     
-    window:SetHeight(window.title:GetFullHeight() + (window.border.size * 2))
-    
+	window:SetHeight(window.title:GetFullHeight() + (window.border.size * 2))
+
     window.title:SetPoint("TOPLEFT", window.border.topleft, "BOTTOMRIGHT")    
     window.controlbox.close:SetPoint('TOPRIGHT', window.border.topright, 'BOTTOMLEFT')
     
@@ -117,7 +121,20 @@ function Libra.UI.Window:Create(params)
     	end
     end
     
-    
+	-- Sets the window to screens center
+	function window:SetToCenter()
+		self:Hide()
+		local uiHeight = UIParent:GetHeight()
+		local uiWidth = UIParent:GetWidth()
+		local newTOPLEFT = {["widht"]=uiWidth/2 - self:GetWidth()/2,["height"]=uiHeight/2 - self:GetHeight()/2}
+		self:SetTo(newTOPLEFT["widht"], newTOPLEFT["height"])
+	end
+	
+	function window:SetTo(x,y)
+		window:SetPoint("TOPLEFT", UIParent, x/UIParent:GetWidth(), y/UIParent:GetHeight())
+		window:Show()
+	end
+
     -- Shows or hides the title bar
     --
     -- @param   bool   show   True/False title flag
@@ -167,7 +184,7 @@ function Libra.UI.Window:Create(params)
     	self.border.bottomright:SetHeight(size)
     end
 
-    -- Sets the Window's border size
+    -- Sets the Window's border color
     --
     -- @param   String   r   Red as % of one. Example: 0.5 would = 128 in CSS
     -- @param   String   g   Green as % of one. Example: 0.5 would = 128 in CSS
@@ -189,7 +206,7 @@ function Libra.UI.Window:Create(params)
     --------------------------------------
     
     -- Bind control box close clicks
-    function window.controlbox.close.Event:LeftDown()
+    function window.controlbox.close.Event:LeftUp()
     	window:SetVisible(false)
     end
     
@@ -215,8 +232,11 @@ function Libra.UI.Window:Create(params)
     --------------------------------------
     window:SetBorderSize(window.border.size)
     window:SetBorderColor(window.border.color.r, window.border.color.g, window.border.color.b, window.border.color.a)
-    window:Resize(0, window.title:GetFullWidth())
-    
+    if params["size"] ~= nil then
+		window:Resize(params["size"]["height"], params["size"]["width"])
+	else
+		window:Resize(0, window.title:GetFullWidth())
+	end
     window:SetVisible(false)
     
     return window
