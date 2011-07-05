@@ -14,13 +14,13 @@ local context = UI.CreateContext("Context")
 Libra.UI.Window = Window
 
 function Libra.UI.Window:Create(params)
-	local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
-	
+  local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
+  
     -----------------------
     -- Build the Window
     -----------------------
-	window:SetBackgroundColor(0, 0, 0, 0)
-	window:SetPoint("TOPLEFT", UIParent, "TOPLEFT")
+    window:SetBackgroundColor(0, 0, 0, 0)
+    window:SetPoint("TOPLEFT", UIParent, "TOPLEFT")
     
     -- Build the background
     window.background = Libra.UI.FrameManager:Create('Texture', window)
@@ -29,13 +29,13 @@ function Libra.UI.Window:Create(params)
     window.background:SetBackgroundColor(0, 0, 0, 0)
     window.background:SetLayer(-1)
         
-	-- Build the title bar
-	window.title = Libra.UI.FrameManager:Create('Text', window)
-	if params["titletext"] ~= nil then
-		window.title:SetText(' ' .. params["titletext"]) 
-	else 
-		window.title:SetText(' ') 
-	end
+    -- Build the title bar
+    window.title = Libra.UI.FrameManager:Create('Text', window)
+    if params["titletext"] ~= nil then
+      window.title:SetText(' ' .. params["titletext"]) 
+    else 
+      window.title:SetText(' ') 
+    end
     window.title:SetFontSize(14)
     window.title:SetHeight(window.title:GetFullHeight())
     window.title:SetBackgroundColor(0.2, 0.2, 0.2, 0.9)
@@ -69,7 +69,7 @@ function Libra.UI.Window:Create(params)
     window.border.bottomcenter = Libra.UI.FrameManager:Create('Texture', window)
     window.border.bottomright  = Libra.UI.FrameManager:Create('Texture', window)
     
-	window:SetHeight(window.title:GetFullHeight() + (window.border.size * 2))
+    window:SetHeight(window.title:GetFullHeight() + (window.border.size * 2))
 
     window.title:SetPoint("TOPLEFT", window.border.topleft, "BOTTOMRIGHT")    
     window.controlbox.close:SetPoint('TOPRIGHT', window.border.topright, 'BOTTOMLEFT')
