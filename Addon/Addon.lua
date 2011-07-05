@@ -27,15 +27,18 @@ function Libra.Addon:Create(name)
 	-- The addons identifier name.  Must match ToC
 	addon.Name = name
 	
+	
 	-- Register a slash command for the addon
 	--
 	-- @param    String    name      Name for the slash command [Example: 'Config']
 	-- @param    String    cmd       Text to be used for the slash command
 	-- @param    func      callback  Function to be called back when the command is used
 	-- @param    Sttring   desc      Description of the commands synax
-	function addon.RegisterSlashCommand(name, cmd, callback, desc)
-		-- TODO: Add to a registry
-		table.insert(Command.Slash.Register("SlickTimers"), { callback, self.Name, 'config' })
+	function addon:RegisterSlashCommand(name, cmd, callback, desc)
+	  
+    table.insert(Command.Slash.Register(cmd), { callback, self.Name, desc})
+
+		-- table.insert(Command.Slash.Register("SlickTimers"), { callback, self.Name, 'config' })
 	end
 	
 	-- 
