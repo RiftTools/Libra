@@ -16,6 +16,13 @@ Libra.UI.Window = Window
 function Libra.UI.Window:Create(params)
   local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
   
+    Options = {["posx"]=100, ["posy"]=100}
+   
+    local movable = true
+    if params["movable"] ~= nil then
+       movable =  params["movable"]
+    end
+    
     -----------------------
     -- Build the Window
     -----------------------
@@ -51,7 +58,16 @@ function Libra.UI.Window:Create(params)
     window.controlbox.close:SetTexture('Libra', 'Media/close.tga')
     window.controlbox.close:SetWidth(window.title:GetFullHeight())
     window.controlbox.close:SetHeight(window.title:GetFullHeight())
+    window.controlbox.close:SetLayer(1)
     
+    if movable then
+      window.controlbox.mover = Libra.UI.FrameManager:Create('Texture', window);
+      window.controlbox.mover:SetPoint('TOPRIGHT', window.controlbox.close, 'TOPLEFT')
+      window.controlbox.mover:SetTexture('Libra', 'Media/options.tga')
+      window.controlbox.mover:SetWidth(window.title:GetFullHeight())
+      window.controlbox.mover:SetHeight(window.title:GetFullHeight())
+      window.controlbox.mover:SetLayer(1)
+    end
     -- Build the border
     window.border = {}
     window.border.size         = 5
@@ -98,6 +114,8 @@ function Libra.UI.Window:Create(params)
     window.content:SetPoint("BOTTOMRIGHT", window.border.bottomcenter, "TOPRIGHT")
     window.content:SetBackgroundColor(0.1, 0.1, 0.1, 0.95)
     
+    
+    
     --------------------------
     -- Apply Object Structure
     --------------------------
@@ -121,19 +139,24 @@ function Libra.UI.Window:Create(params)
     	end
     end
     
-	-- Sets the window to screens center
-	function window:SetToCenter()
-		self:Hide()
-		local uiHeight = UIParent:GetHeight()
-		local uiWidth = UIParent:GetWidth()
-		local newTOPLEFT = {["widht"]=uiWidth/2 - self:GetWidth()/2,["height"]=uiHeight/2 - self:GetHeight()/2}
-		self:SetTo(newTOPLEFT["widht"], newTOPLEFT["height"])
-	end
-	
-	function window:SetTo(x,y)
-		window:SetPoint("TOPLEFT", UIParent, x/UIParent:GetWidth(), y/UIParent:GetHeight())
-		window:Show()
-	end
+    -- Sets the window to screens center
+    function window:SetToCenter()
+      local uiHeight = UIParent:GetHeight()
+      local uiWidth = UIParent:GetWidth()
+      local newTOPLEFT = {["x"]=uiWidth/2 - self:GetWidth()/2,["y"]=uiHeight/2 - self:GetHeight()/2}
+      self:SetTo(newTOPLEFT["x"], newTOPLEFT["y"])                              
+    end
+    
+    function window:SetTo(x,y) 
+      Options["posx"] = x
+      Options["posy"] = y
+      window:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x,y)
+    end
+
+    function window:MoveRelative(xmove,ymove)
+      print("Current position: "..Options["posx"].." / "..Options["posy"])
+      window:SetTo(Options["posx"]+xmove,Options["posy"]+ymove)
+    end
 
     -- Shows or hides the title bar
     --
@@ -208,10 +231,19 @@ function Libra.UI.Window:Create(params)
     -- Bind control box close clicks
     function window.controlbox.close.Event:LeftUp()
     	window:SetVisible(false)
-    end
+    end   
     
+    if movable then
+      -- Bind control box mover clicks
+      function window.controlbox.mover.Event:LeftUp()
+        if not mover then
+          mover = Libra.UI.Mover:Create(window)
+        end
+      	mover:Show()
+      end
+    end
     --------------------------------------
-    -- Show/Hide/Destroy Methods
+    -- Show/Hide/ToggleVisibility/Destroy Methods
     --------------------------------------
     function window:Show()
     	self:SetVisible(true)
@@ -219,6 +251,14 @@ function Libra.UI.Window:Create(params)
     
     function window:Hide()
     	self:SetVisible(false)
+    end 
+    
+    function window:toggleVisibility()
+      if self:GetVisible() then
+        self:SetVisible(false)
+      else
+        self:SetVisible(true)
+      end
     end
     
     function window:Destroy()
