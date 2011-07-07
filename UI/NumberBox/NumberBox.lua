@@ -164,7 +164,7 @@ function Libra.UI.NumberBox:Create(owner)
 		
 		for k, v in pairs(self.OnChange) do
 			v()
-		end		
+		end
 		
 		self:Refresh()
 	end

@@ -16,7 +16,7 @@ Libra.UI.Window = Window
 function Libra.UI.Window:Create(params)
   local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
   
-    Options = {["posx"]=100, ["posy"]=100}
+    window.Options = {["posx"]=100, ["posy"]=100}
    
     local movable = true
     if params["movable"] ~= nil then
@@ -147,15 +147,15 @@ function Libra.UI.Window:Create(params)
       self:SetTo(newTOPLEFT["x"], newTOPLEFT["y"])                              
     end
     
-    function window:SetTo(x,y) 
-      Options["posx"] = x
-      Options["posy"] = y
-      window:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x,y)
+    function window:SetTo(x,y,dontNotify) 
+      self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x,y)
+      if mover and not dontNotify then
+        mover:NotifyMoved()
+      end
     end
 
     function window:MoveRelative(xmove,ymove)
-      print("Current position: "..Options["posx"].." / "..Options["posy"])
-      window:SetTo(Options["posx"]+xmove,Options["posy"]+ymove)
+      window:SetTo(window:GetLeft()+xmove,window:GetTop()+ymove,false)
     end
 
     -- Shows or hides the title bar
@@ -190,6 +190,7 @@ function Libra.UI.Window:Create(params)
     	newcontent:SetParent(self.content)
     	newcontent:SetPoint('TOPLEFT', self.content, 'TOPLEFT', self.content.padding, self.content.padding)
     	newcontent:SetPoint('TOPRIGHT', self.content, 'TOPRIGHT', -self.content.padding, self.content.padding)
+    	newcontent:SetLayer(window:GetLayer()+1)
     end
 
     -- Sets the Window's border size
