@@ -14,13 +14,20 @@ local context = UI.CreateContext("Context")
 Libra.UI.Window = Window
 
 function Libra.UI.Window:Create(params)
-	local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
-	
+  local window = Libra.UI.FrameManager:Create('Libra.UI.Window', context)
+  
+    window.Options = {["posx"]=100, ["posy"]=100}
+   
+    local movable = true
+    if params["movable"] ~= nil then
+       movable =  params["movable"]
+    end
+    
     -----------------------
     -- Build the Window
     -----------------------
-	window:SetBackgroundColor(0, 0, 0, 0)
-	window:SetPoint("TOPLEFT", UIParent, "TOPLEFT")
+    window:SetBackgroundColor(0, 0, 0, 0)
+    window:SetPoint("TOPLEFT", UIParent, "TOPLEFT")
     
     -- Build the background
     window.background = Libra.UI.FrameManager:Create('Texture', window)
@@ -29,9 +36,13 @@ function Libra.UI.Window:Create(params)
     window.background:SetBackgroundColor(0, 0, 0, 0)
     window.background:SetLayer(-1)
         
-	-- Build the title bar
-	window.title = Libra.UI.FrameManager:Create('Text', window)
-    window.title:SetText(".") 
+    -- Build the title bar
+    window.title = Libra.UI.FrameManager:Create('Text', window)
+    if params["titletext"] ~= nil then
+      window.title:SetText(' ' .. params["titletext"]) 
+    else 
+      window.title:SetText(' ') 
+    end
     window.title:SetFontSize(14)
     window.title:SetHeight(window.title:GetFullHeight())
     window.title:SetBackgroundColor(0.2, 0.2, 0.2, 0.9)
@@ -47,7 +58,16 @@ function Libra.UI.Window:Create(params)
     window.controlbox.close:SetTexture('Libra', 'Media/close.tga')
     window.controlbox.close:SetWidth(window.title:GetFullHeight())
     window.controlbox.close:SetHeight(window.title:GetFullHeight())
+    window.controlbox.close:SetLayer(1)
     
+    if movable then
+      window.controlbox.mover = Libra.UI.FrameManager:Create('Texture', window);
+      window.controlbox.mover:SetPoint('TOPRIGHT', window.controlbox.close, 'TOPLEFT')
+      window.controlbox.mover:SetTexture('Libra', 'Media/options.tga')
+      window.controlbox.mover:SetWidth(window.title:GetFullHeight())
+      window.controlbox.mover:SetHeight(window.title:GetFullHeight())
+      window.controlbox.mover:SetLayer(1)
+    end
     -- Build the border
     window.border = {}
     window.border.size         = 5
@@ -66,7 +86,7 @@ function Libra.UI.Window:Create(params)
     window.border.bottomright  = Libra.UI.FrameManager:Create('Texture', window)
     
     window:SetHeight(window.title:GetFullHeight() + (window.border.size * 2))
-    
+
     window.title:SetPoint("TOPLEFT", window.border.topleft, "BOTTOMRIGHT")    
     window.controlbox.close:SetPoint('TOPRIGHT', window.border.topright, 'BOTTOMLEFT')
     
@@ -94,6 +114,8 @@ function Libra.UI.Window:Create(params)
     window.content:SetPoint("BOTTOMRIGHT", window.border.bottomcenter, "TOPRIGHT")
     window.content:SetBackgroundColor(0.1, 0.1, 0.1, 0.95)
     
+    
+    
     --------------------------
     -- Apply Object Structure
     --------------------------
@@ -117,7 +139,25 @@ function Libra.UI.Window:Create(params)
     	end
     end
     
+    -- Sets the window to screens center
+    function window:SetToCenter()
+      local uiHeight = UIParent:GetHeight()
+      local uiWidth = UIParent:GetWidth()
+      local newTOPLEFT = {["x"]=uiWidth/2 - self:GetWidth()/2,["y"]=uiHeight/2 - self:GetHeight()/2}
+      self:SetTo(newTOPLEFT["x"], newTOPLEFT["y"])                              
+    end
     
+    function window:SetTo(x,y,dontNotify) 
+      self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x,y)
+      if mover and not dontNotify then
+        mover:NotifyMoved()
+      end
+    end
+
+    function window:MoveRelative(xmove,ymove)
+      window:SetTo(window:GetLeft()+xmove,window:GetTop()+ymove,false)
+    end
+
     -- Shows or hides the title bar
     --
     -- @param   bool   show   True/False title flag
@@ -150,6 +190,7 @@ function Libra.UI.Window:Create(params)
     	newcontent:SetParent(self.content)
     	newcontent:SetPoint('TOPLEFT', self.content, 'TOPLEFT', self.content.padding, self.content.padding)
     	newcontent:SetPoint('TOPRIGHT', self.content, 'TOPRIGHT', -self.content.padding, self.content.padding)
+    	newcontent:SetLayer(window:GetLayer()+1)
     end
 
     -- Sets the Window's border size
@@ -167,7 +208,7 @@ function Libra.UI.Window:Create(params)
     	self.border.bottomright:SetHeight(size)
     end
 
-    -- Sets the Window's border size
+    -- Sets the Window's border color
     --
     -- @param   String   r   Red as % of one. Example: 0.5 would = 128 in CSS
     -- @param   String   g   Green as % of one. Example: 0.5 would = 128 in CSS
@@ -189,12 +230,21 @@ function Libra.UI.Window:Create(params)
     --------------------------------------
     
     -- Bind control box close clicks
-    function window.controlbox.close.Event:LeftDown()
+    function window.controlbox.close.Event:LeftUp()
     	window:SetVisible(false)
-    end
+    end   
     
+    if movable then
+      -- Bind control box mover clicks
+      function window.controlbox.mover.Event:LeftUp()
+        if not mover then
+          mover = Libra.UI.Mover:Create(window)
+        end
+      	mover:Show()
+      end
+    end
     --------------------------------------
-    -- Show/Hide/Destroy Methods
+    -- Show/Hide/ToggleVisibility/Destroy Methods
     --------------------------------------
     function window:Show()
     	self:SetVisible(true)
@@ -202,6 +252,14 @@ function Libra.UI.Window:Create(params)
     
     function window:Hide()
     	self:SetVisible(false)
+    end 
+    
+    function window:toggleVisibility()
+      if self:GetVisible() then
+        self:SetVisible(false)
+      else
+        self:SetVisible(true)
+      end
     end
     
     function window:Destroy()
@@ -215,8 +273,11 @@ function Libra.UI.Window:Create(params)
     --------------------------------------
     window:SetBorderSize(window.border.size)
     window:SetBorderColor(window.border.color.r, window.border.color.g, window.border.color.b, window.border.color.a)
-    window:Resize(0, window.title:GetFullWidth())
-    
+    if params["size"] ~= nil then
+		window:Resize(params["size"]["height"], params["size"]["width"])
+	else
+		window:Resize(0, window.title:GetFullWidth())
+	end
     window:SetVisible(false)
     
     return window

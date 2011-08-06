@@ -127,16 +127,16 @@ function Libra.UI.NumberBox:Create(owner)
 	function box.bt_10up.Event:LeftDown()
 		box:SetValue(box.value + 10)
 	end
-	function box.bt_100up.Event:LeftDown()
+	function box.bt_100up.Event:LeftUp()
 		box:SetValue(box.value + 100)
 	end
-	function box.bt_1down.Event:LeftDown()
+	function box.bt_1down.Event:LeftUp()
 		box:SetValue(box.value - 1)
 	end
-	function box.bt_10down.Event:LeftDown()
+	function box.bt_10down.Event:LeftUp()
 		box:SetValue(box.value - 10)
 	end
-	function box.bt_100down.Event:LeftDown()
+	function box.bt_100down.Event:LeftUp()
 		box:SetValue(box.value - 100)
 	end
 	
@@ -147,7 +147,7 @@ function Libra.UI.NumberBox:Create(owner)
 
 	-- Refresh the box
 	function box:Refresh()
-		box.text:SetPoint('CENTER', box.text_background, 'CENTER')	
+		box.text:SetPoint('CENTER', box.text_background, 'CENTER')
 	end
 	
 	-- Set the box value
@@ -164,7 +164,7 @@ function Libra.UI.NumberBox:Create(owner)
 		
 		for k, v in pairs(self.OnChange) do
 			v()
-		end		
+		end
 		
 		self:Refresh()
 	end

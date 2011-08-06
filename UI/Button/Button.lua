@@ -17,6 +17,7 @@ function Libra.UI.Button:Create(owner)
 	local button = {}
 	if owner then
 		button  = Libra.UI.FrameManager:Create('Libra.UI.Button: Button', owner)
+		button:SetLayer(owner:GetLayer()+1)
 	else
 		button  = Libra.UI.FrameManager:Create('Libra.UI.Button: Button', context)
 	end	
